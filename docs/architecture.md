@@ -33,7 +33,7 @@ source. Authoritative as of the first fab run.
 | A2 / A3 / A4 | `ENC_A` / `ENC_B` / `ENC_SW` | EC11 encoder |
 | D13 | `BTN33` | direct; shares the onboard LED |
 | D0 / D1 | `MIDI_RX` / `MIDI_TX` | `Serial1`. DIN in via H11L1 opto (J6), DIN out (J7) |
-| D10 / D11 | `CYD_TX` / `CYD_RX` | J5, 4-pin to CYD. **Not a hardware UART by default** |
+| D10 / D11 | `CYD_TX` / `CYD_RX` | J5, 4-pin to CYD. No `Serial2` — needs SERCOM3, see §7 |
 | — | free | A1, A5, SCK, MOSI, MISO |
 
 Buttons are active LOW with 10k pull-ups (RN1–4).
@@ -176,19 +176,53 @@ rewritten.
 
 ## 7. Open risks and questions
 
-**Risk — the CYD link is not a hardware UART.** On v2 the LCD lived on
-`Serial1`. On v3 `Serial1` (D0/D1) is DIN MIDI, and the CYD sits on D10/D11,
-where the Feather M4 has no `Serial2`. This needs a hand-instantiated SERCOM
-UART. It looks feasible — D10 is PA20 (SERCOM PAD[2] → TX) and D11 is PA21
-(PAD[3] → RX), i.e. `UART_TX_PAD_2` + `SERCOM_RX_PAD_3` — but this is
-**unverified against the SAMD51 datasheet mux table and must be proven on the
-bench**. If it fails, the fallback is the spare MOSI/MISO pins, which would mean
-a board change.
+**Resolved — the CYD link needs a hand-instantiated SERCOM3 UART.** On v2 the
+LCD lived on `Serial1`. On v3 `Serial1` (D0/D1) is DIN MIDI, and the CYD sits
+on D10/D11, where the Feather M4 has no `Serial2`.
+
+Verified against the CMSIS pinmux tables (`pio/samd51j19a.h`) and the
+`feather_m4` variant:
+
+```
+PA20 (D10): function C = SERCOM5 PAD2, function D = SERCOM3 PAD2
+PA21 (D11): function C = SERCOM5 PAD3, function D = SERCOM3 PAD3
+```
+
+SERCOM5 is already `Serial1`, SERCOM1 is SPI and SERCOM2 is Wire, so the link
+must use **SERCOM3 via peripheral function D — `PIO_SERCOM_ALT`, not
+`PIO_SERCOM`**. Selecting the wrong function points the pins back at the
+in-use SERCOM5 and fails silently.
+
+```cpp
+Uart SerialCYD(&sercom3, 11, 10, SERCOM_RX_PAD_3, UART_TX_PAD_2);
+void SERCOM3_0_Handler() { SerialCYD.IrqHandler(); }   // also _1, _2, _3
+pinPeripheral(10, PIO_SERCOM_ALT);
+pinPeripheral(11, PIO_SERCOM_ALT);
+```
+
+`tests/cyd_uart_probe/` implements this and compiles for the Feather M4. It
+self-tests via a D10→D11 jumper, so the SERCOM can be confirmed on the bench
+with one wire and no CYD. Still to prove on hardware: sustained throughput at
+921600/1 M, and that it stays clean while the TC4 sequencer ISR is running.
+
+Contingency if the bench test fails: the spare MOSI/MISO pins, which would
+require a board change.
 
 **Open — does the CYD parse the pattern format, or stay a pure blob store?**
 Blob store is trivially correct and ships sooner; parsing is eventually required
 for a web UI that can browse and edit patterns. Undecided.
 
-**Note — build host.** v2 was built on macOS (`.vscode/arduino.json` references
-`/dev/tty.usbmodem14101`). The Linux workstation needs `arduino-cli` plus the
-`adafruit:samd` and `esp32` cores.
+## 8. Build
+
+v2 was built on macOS (`.vscode/arduino.json` references
+`/dev/tty.usbmodem14101`). The Linux workstation is now set up:
+`arduino-cli` 1.4.0 in `~/.local/bin`, with `adafruit:samd` 1.7.17 and
+`esp32:esp32` 3.3.11.
+
+```sh
+arduino-cli compile --fqbn adafruit:samd:adafruit_feather_m4 tests/cyd_uart_probe
+arduino-cli compile --fqbn esp32:esp32:esp32 firmware/cyd
+```
+
+Both `tests/cyd_uart_probe` and `tests/synthseqr_bringup` currently compile
+clean for the Feather M4.
