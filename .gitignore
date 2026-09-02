@@ -1,0 +1,5 @@
+hardware/synthseqr_v3.kicad_pcb
+hardware/synthseqr_v3.kicad_sch
+.claude/settings.local.json
+.claude/settings.json
+tests/synthseqr_bringup/.claude/settings.local.json
