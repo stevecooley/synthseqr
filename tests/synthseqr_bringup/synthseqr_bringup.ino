@@ -12,7 +12,7 @@
  *   SDA          button mux COM  (U2, BTN0-15)
  *   SCL          button mux COM  (U3, BTN16-31)
  *   A1/MOSI/SCK/A5  SHIFT / STOP / RECORD / PLAY  (SW33-36, direct)
- *   MISO         S1 slide switch (to GND, internal pull-up)
+ *   MISO         S1 soft-power rocker (to GND, internal pull-up)
  *   A2/A3/A4     encoder A / B / switch
  *
  * TWO BUTTON POLARITIES. SW1-32 switch to GND against RN1-4 10k pull-ups, so

@@ -4,6 +4,6 @@ hardware/synthseqr_v3.kicad_sch
 .claude/settings.json
 tests/synthseqr_bringup/.claude/settings.local.json
 
-# native test binaries
-tests/protocol/test_frame
-tests/protocol/test_frame-asan
+# native test binaries — sources are tracked, build products are not
+tests/protocol/test_*
+!tests/protocol/test_*.c

@@ -22,7 +22,7 @@ extern "C" {
 /* Bumped on any incompatible change to message layout or semantics. Exchanged
  * in the HELLO handshake; a mismatch must fail loudly rather than degrade. The
  * two boards get flashed independently, so silent skew is the expensive case. */
-#define SS_PROTOCOL_VERSION 1
+#define SS_PROTOCOL_VERSION 2
 
 /* Message type. High nibble is the class, low nibble the member. */
 typedef enum {
@@ -54,8 +54,25 @@ typedef enum {
     /* 0x5_ MIDI relay for BLE. Note data only — clock never crosses this link,
      * because the UART hop plus the ESP32 BLE stack would wreck its timing. */
     SS_MSG_MIDI_IN      = 0x50,  /* CYD -> Feather */
-    SS_MSG_MIDI_OUT     = 0x51   /* Feather -> CYD */
+    SS_MSG_MIDI_OUT     = 0x51,  /* Feather -> CYD */
+
+    /* 0x6_ soft power. S1 is a maintained rocker on the Feather's MISO; there
+     * is no actual power cutoff, so "off" is a cooperative shutdown into a
+     * low-power state. The Feather owns the switch and drives the whole
+     * sequence — the CYD only ever answers. */
+    SS_MSG_PWR_SHUTDOWN = 0x60,  /* F->C : persist everything now */
+    SS_MSG_PWR_SAVED    = 0x61,  /* C->F : payload[0] = ss_pwr_save_status */
+    SS_MSG_PWR_SLEEP    = 0x62,  /* F->C : enter low power now */
+    SS_MSG_PWR_WAKE     = 0x63,  /* F->C : rocker back on, resume */
+    SS_MSG_PWR_ABORT    = 0x64   /* F->C : rocker returned mid-shutdown */
 } ss_msg_type_t;
+
+typedef enum {
+    SS_PWR_SAVE_OK      = 0x00,
+    SS_PWR_SAVE_FAILED  = 0x01,  /* the Feather powers down anyway; it cannot
+                                  * stay up waiting on storage it does not own */
+    SS_PWR_SAVE_NOTHING = 0x02   /* nothing dirty */
+} ss_pwr_save_status_t;
 
 typedef enum {
     SS_NAK_BAD_VERSION  = 0x01,

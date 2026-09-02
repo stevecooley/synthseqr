@@ -34,7 +34,7 @@ committed copy, so a future revision is a re-run and a diff.
 | D5 | `LED_DATA` | R9 10k pulldown → 74AHCT125 → R37 series → 36x SK6812 |
 | A2 / A3 / A4 | `ENC_A` / `ENC_B` / `ENC_SW` | EC11 encoder |
 | A1 / MOSI / SCK / A5 | `SHIFT` / `STOP` / `RECORD` / `PLAY` | SW33–36 transport — **active HIGH**, see below |
-| MISO | S1 slide switch | switches to GND; no external pull-up, needs `INPUT_PULLUP` |
+| MISO | S1 soft-power rocker | to GND, no external pull-up — `INPUT_PULLUP`. PB22 / EXTINT[6], so it can wake from standby |
 | D0 / D1 | `MIDI_RX` / `MIDI_TX` | `Serial1`. DIN in via H11L1 opto (J6), DIN out (J7) |
 | D10 / D11 | `CYD_TX` / `CYD_RX` | J5, 4-pin to CYD. No `Serial2` — needs SERCOM3, see §7 |
 | RST | S2 | reset button; not firmware-visible |
@@ -106,6 +106,7 @@ Baud: 115200 for bring-up, then 921600 / 1 M once stable.
 | `0x3x` | F→C | state broadcast (the mirror) |
 | `0x4x` | both | storage, chunked with offset/len |
 | `0x5x` | both | MIDI relay for BLE |
+| `0x6x` | mostly F→C | soft power: shutdown, saved, sleep, wake, abort |
 
 ### Transport
 
@@ -158,6 +159,37 @@ These govern everything else:
 - **The protocol version is exchanged in the `hello` handshake** and a mismatch
   fails loudly. The two boards will be flashed independently for months; silent
   version skew is the most expensive available failure mode.
+
+### Soft power
+
+S1 is a maintained rocker on MISO. It does not break the rail — J1 feeds both
+boards through D1/D2 — so "off" is a cooperative shutdown, and the reason it
+exists at all is the save window: the CYD owns storage, and cutting power
+mid-write is the corruption case worth engineering around. A hard cutoff was
+considered and rejected; beyond losing that window, switching ~1.6 mF of bulk
+capacitance with a mechanical contact pits it.
+
+`protocol/ss_power.*` is the Feather-side authority. The CYD only ever answers.
+
+```
+rocker off ─> quiesce (notes off) ─> PWR_SHUTDOWN ─> await PWR_SAVED
+           ─> save_local ─> PWR_SLEEP ─> drain TX ─> standby
+```
+
+- **Nothing the CYD does can prevent shutdown.** Every wait has a deadline and
+  every deadline ends in powering down anyway. Refusing to turn off would leave
+  the user pulling the barrel jack, which is the failure mode being eliminated.
+  An absent peer skips the wait entirely rather than burning the full window.
+- **Quiesce runs first and unconditionally**, before any timeout can apply. A
+  slow save must not hold a note on, and once the transport is stopped there is
+  no sequencer left to release it.
+- **The rocker is a level, not an edge.** Powering up with it off settles
+  straight back to sleep instead of coming up live, and the state survives reset.
+- **`PWR_SHUTDOWN` is retried if the link was down when it was first sent**,
+  which is precisely the power-up-with-rocker-off case. Without it the Feather
+  waits the full save window for a reply to a request nobody received.
+- MISO is PB22 / `EXTINT[6]`, so the pin can wake the SAMD51 out of standby.
+- Cost: 406 bytes of flash and an 80-byte `ss_power_t`.
 
 ## 4. Repository layout
 
