@@ -101,6 +101,37 @@ Baud: 115200 for bring-up, then 921600 / 1 M once stable.
 | `0x4x` | both | storage, chunked with offset/len |
 | `0x5x` | both | MIDI relay for BLE |
 
+### Transport
+
+`protocol/ss_link.*` sits on the codec and provides ring buffers, the HELLO
+handshake, and keepalive. It has no dependency on Arduino, a UART, or a clock
+source: the caller pushes received bytes in, pulls bytes to transmit out, and
+supplies `now_ms`. Platform glue is roughly twenty lines per board, and the
+entire state machine is verified natively.
+
+Single-producer/single-consumer per direction, so no critical sections are
+needed provided the contexts stay separated:
+
+| Call | Context |
+|---|---|
+| `ss_link_rx_byte` | one only — typically the UART RX ISR |
+| `ss_link_tx_pull` | one only — main loop or a TX-empty ISR |
+| `ss_link_send`, `ss_link_poll` | main loop only |
+
+Behaviour worth knowing:
+
+- **Nothing blocks.** `ss_link_send` fails immediately if the link is down or
+  the TX ring is full, and counts the drop. Callers sending superseded data
+  (display refreshes) should discard; callers that care (storage) must retry.
+- **Frames are all-or-nothing.** A frame that does not fit entirely is not
+  written at all — a partial write would desynchronise the peer for every
+  subsequent frame.
+- **Application frames are refused until the handshake completes**, in both
+  directions. Without an agreed protocol version the peer cannot be trusted.
+- **Timers use unsigned differences**, so the 32-bit millisecond counter
+  wrapping at ~49 days of uptime does not drop the link.
+- Cost: 800 bytes of flash and a 2,416-byte `ss_link_t` on the Cortex-M4.
+
 ### Timing rules
 
 These govern everything else:

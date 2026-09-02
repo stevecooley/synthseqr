@@ -1,25 +1,32 @@
-# Native test build for the link codec. No board, no Arduino core.
-#   make          build and run
-#   make asan     build and run under ASan/UBSan
+# Native test build for the link codec and transport. No board, no Arduino core.
+#   make          build and run everything
+#   make asan     same, under ASan/UBSan
 
 CC      ?= cc
 CFLAGS  := -std=c99 -Wall -Wextra -Wpedantic -Werror -O1 -g
-SRC     := test_frame.c ../../protocol/ss_frame.c
-BIN     := test_frame
+PROTO   := ../../protocol
+HDRS    := $(PROTO)/ss_frame.h $(PROTO)/ss_protocol.h $(PROTO)/ss_link.h
+BINS    := test_frame test_link
 
 .PHONY: all run asan clean
 
 all: run
 
-$(BIN): $(SRC) ../../protocol/ss_frame.h ../../protocol/ss_protocol.h
-	$(CC) $(CFLAGS) -o $@ $(SRC)
+test_frame: test_frame.c $(PROTO)/ss_frame.c $(HDRS)
+	$(CC) $(CFLAGS) -o $@ test_frame.c $(PROTO)/ss_frame.c
 
-run: $(BIN)
-	./$(BIN)
+test_link: test_link.c $(PROTO)/ss_frame.c $(PROTO)/ss_link.c $(HDRS)
+	$(CC) $(CFLAGS) -o $@ test_link.c $(PROTO)/ss_frame.c $(PROTO)/ss_link.c
 
-asan: $(SRC)
-	$(CC) $(CFLAGS) -fsanitize=address,undefined -o $(BIN)-asan $(SRC)
-	./$(BIN)-asan
+run: $(BINS)
+	@for t in $(BINS); do ./$$t || exit 1; echo; done
+
+asan: test_frame.c test_link.c
+	$(CC) $(CFLAGS) -fsanitize=address,undefined -o test_frame-asan \
+		test_frame.c $(PROTO)/ss_frame.c
+	$(CC) $(CFLAGS) -fsanitize=address,undefined -o test_link-asan \
+		test_link.c $(PROTO)/ss_frame.c $(PROTO)/ss_link.c
+	./test_frame-asan && echo && ./test_link-asan
 
 clean:
-	rm -f $(BIN) $(BIN)-asan
+	rm -f $(BINS) test_frame-asan test_link-asan
