@@ -1,0 +1,466 @@
+# netlist of hardware/synthseqr_v3.kicad_pcb
+# sha256:034a75fff1ca493f  generated 2026-09-02T20:02:22Z
+# 202 components, 117 nets
+
+## components
+
+A: 1
+  A1       Adafruit Feather M4 Express     89.35     25.11  PCM_synthseqr:Adafruit_Feather_SMDheader
+C: 63
+  C1       1000uF                       38.05     69.90  Capacitor_THT:CP_Radial_D8.0mm_P3.50mm
+  C2       470uF                       101.79     49.45  PCM_synthseqr:865060253008
+  C3       100uF                        49.06     58.56  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C4       100nF                        36.49    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C5       100nF                        52.99    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C6       100nF                        69.55    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C7       C3225X7R1C106M200AB          51.46     37.63  PCM_synthseqr:CAPC3225X200N
+  C8       100nF                       102.64    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C9       100nF                       118.16    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C10      100nF                       134.71    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C11      100nF                       152.35    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C12      100nF                       283.71    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C13      100nF                       268.19    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C14      100nF                       251.66    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C15      100nF                       235.12    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C16      100nF                       217.51    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C17      100nF                       201.98    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C18      100nF                       168.90    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C19      100nF                        42.28    179.40  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C20      100nF                        86.00    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C21      100nF                       185.46    162.78  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C22      100nF                        58.68    179.40  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C23      100nF                        75.22    179.45  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C24      100nF                        92.05    179.44  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C25      100nF                       108.34    179.45  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C26      100nF                       124.92    179.40  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C27      100nF                       141.51    179.45  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C28      100nF                       157.97    179.40  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C29      100nF                       174.52    179.35  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C30      100nF                       191.19    179.42  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C31      100nF                       207.62    179.45  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C32      100nF                       224.35    179.36  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C33      100nF                       240.87    179.40  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C34      100nF                       257.25    179.51  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C35      100nF                       273.94    179.40  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C36      100nF                       290.67    179.43  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C37      100nF                       143.18     70.18  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C38      100nF                       161.28     70.18  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C39      100nF                       179.35     70.19  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C40      100nF                       197.61     70.19  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C41      100nF                       215.58     70.28  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C42      100nF                       233.62     70.19  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C43      100nF                       251.68     70.19  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C44      100nF                       269.80     70.26  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C45      100nF                       143.14     91.20  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C46      100nF                       161.32     91.26  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C47      100nF                       179.47     91.16  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C48      100nF                       197.38     91.16  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C49      100nF                       215.38     91.20  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C50      100nF                       233.78     91.26  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C51      100nF                       251.78     91.44  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C52      100nF                       269.98     91.28  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C53      100nF                        65.30     90.96  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C54      100nF                        87.00     91.06  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C55      100nF                       109.30     91.06  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C56      100nF                       131.40     91.20  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C57      100nF                        92.21     22.48  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C58      100nF                       106.82    111.77  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C59      100nF                       178.42    145.99  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C60      100nF                       228.51     33.34  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C61      100nF                       112.79     46.75  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C62      100nF                        52.89    193.47  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+  C63      100nF                        92.94     30.24  Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder
+D: 4
+  D1       SS14                         48.66     68.24  PCM_synthseqr:D_3220_8050Metric_Pad2.65x5.15mm_HandSolder
+  D2       SS14                         98.55     67.97  PCM_synthseqr:D_3220_8050Metric_Pad2.65x5.15mm_HandSolder
+  D3       1N4148                      116.92     39.99  PCM_4ms_Diode:D_SOD-123
+  D4       SMBJ5.0A                     40.33     37.22  PCM_synthseqr:DIOM5436X261N
+ENC: 1
+  ENC1     EC11 w/ switch               35.50     56.25  PCM_synthseqr:EN11HSM1AF15
+H: 8
+  H1       MountingHole_3.2mm           33.70     27.60  SSQ:MountingHole_3.2mm
+  H2       MountingHole_3.2mm          287.70     27.60  SSQ:MountingHole_3.2mm
+  H3       MountingHole_3.2mm           33.70    190.46  SSQ:MountingHole_3.2mm
+  H4       MountingHole_3.2mm          287.70    190.46  SSQ:MountingHole_3.2mm
+  H5       MountingHole_3.2mm          160.70     27.60  SSQ:MountingHole_3.2mm
+  H6       MountingHole_3.2mm          160.70    190.85  SSQ:MountingHole_3.2mm
+  H6       MountingHole_3.2mm          147.06     46.18  SSQ:MountingHole_3.2mm
+  H7       MountingHole_3.2mm          147.06     40.98  SSQ:MountingHole_3.2mm
+J: 5
+  J1       5V 4A in                     45.21     33.35  Connector_BarrelJack:BarrelJack_Wuerth_6941xx301002
+  J4       SK6812 chain                 66.99    188.75  Connector_Wire:SolderWire-0.1sqmm_1x03_P3.6mm_D0.4mm_OD1mm
+  J5       To CYD P1                   138.00     39.92  PCM_synthseqr:CYD_UART_cable_attach
+  J6       61PC5F                      137.49     31.23  PCM_synthseqr:5PINDINMIDI_adafruit
+  J7       61PC5F                      113.49     31.23  PCM_synthseqr:5PINDINMIDI_adafruit
+LED: 36
+  LED1     MX_SK6812MINI-E              36.51    179.41  PCM_marbastlib-mx:LED_MX_6028R
+  LED2     MX_SK6812MINI-E              52.99    179.39  PCM_marbastlib-mx:LED_MX_6028R
+  LED3     MX_SK6812MINI-E              69.55    179.39  PCM_marbastlib-mx:LED_MX_6028R
+  LED4     MX_SK6812MINI-E              86.14    179.44  PCM_marbastlib-mx:LED_MX_6028R
+  LED5     MX_SK6812MINI-E             102.64    179.39  PCM_marbastlib-mx:LED_MX_6028R
+  LED6     MX_SK6812MINI-E             119.19    179.39  PCM_marbastlib-mx:LED_MX_6028R
+  LED7     MX_SK6812MINI-E             135.75    179.39  PCM_marbastlib-mx:LED_MX_6028R
+  LED8     MX_SK6812MINI-E             152.40    179.39  PCM_marbastlib-mx:LED_MX_6028R
+  LED9     MX_SK6812MINI-E             168.90    179.39  PCM_marbastlib-mx:LED_MX_6028R
+  LED10    MX_SK6812MINI-E             185.50    179.39  PCM_marbastlib-mx:LED_MX_6028R
+  LED11    MX_SK6812MINI-E             202.00    179.40  PCM_marbastlib-mx:LED_MX_6028R
+  LED12    MX_SK6812MINI-E             218.54    179.44  PCM_marbastlib-mx:LED_MX_6028R
+  LED13    MX_SK6812MINI-E             235.15    179.44  PCM_marbastlib-mx:LED_MX_6028R
+  LED14    MX_SK6812MINI-E             251.69    179.39  PCM_marbastlib-mx:LED_MX_6028R
+  LED15    MX_SK6812MINI-E             268.19    179.44  PCM_marbastlib-mx:LED_MX_6028R
+  LED16    MX_SK6812MINI-E             284.75    179.44  PCM_marbastlib-mx:LED_MX_6028R
+  LED17    MX_SK6812MINI-E             151.65     70.17  PCM_marbastlib-mx:LED_MX_6028R
+  LED18    MX_SK6812MINI-E             169.81     70.17  PCM_marbastlib-mx:LED_MX_6028R
+  LED19    MX_SK6812MINI-E             187.88     70.18  PCM_marbastlib-mx:LED_MX_6028R
+  LED20    MX_SK6812MINI-E             205.93     70.18  PCM_marbastlib-mx:LED_MX_6028R
+  LED21    MX_SK6812MINI-E             224.10     70.17  PCM_marbastlib-mx:LED_MX_6028R
+  LED22    MX_SK6812MINI-E             242.20     70.18  PCM_marbastlib-mx:LED_MX_6028R
+  LED23    MX_SK6812MINI-E             260.25     70.18  PCM_marbastlib-mx:LED_MX_6028R
+  LED24    MX_SK6812MINI-E             278.40     70.20  PCM_marbastlib-mx:LED_MX_6028R
+  LED25    MX_SK6812MINI-E             151.72     91.29  PCM_marbastlib-mx:LED_MX_6028R
+  LED26    MX_SK6812MINI-E             169.75     91.25  PCM_marbastlib-mx:LED_MX_6028R
+  LED27    MX_SK6812MINI-E             187.95     91.25  PCM_marbastlib-mx:LED_MX_6028R
+  LED28    MX_SK6812MINI-E             205.95     91.25  PCM_marbastlib-mx:LED_MX_6028R
+  LED29    MX_SK6812MINI-E             224.03     91.25  PCM_marbastlib-mx:LED_MX_6028R
+  LED30    MX_SK6812MINI-E             242.20     91.25  PCM_marbastlib-mx:LED_MX_6028R
+  LED31    MX_SK6812MINI-E             260.25     91.25  PCM_marbastlib-mx:LED_MX_6028R
+  LED32    MX_SK6812MINI-E             278.43     91.25  PCM_marbastlib-mx:LED_MX_6028R
+  LED33    MX_SK6812MINI-E              58.96     91.03  PCM_marbastlib-mx:LED_MX_6028R
+  LED34    MX_SK6812MINI-E              81.03     91.15  PCM_marbastlib-mx:LED_MX_6028R
+  LED35    MX_SK6812MINI-E             103.10     91.10  PCM_marbastlib-mx:LED_MX_6028R
+  LED36    MX_SK6812MINI-E             125.47     91.12  PCM_marbastlib-mx:LED_MX_6028R
+NetTie_: 1
+  NetTie_1 0                            42.79     72.19  NetTie:NetTie-2_SMD_Pad2.0mm
+R: 10
+  R1       220R                        123.01     39.91  Resistor_SMD:R_0805_2012Metric
+  R2       1k                          110.61     39.91  Resistor_SMD:R_0805_2012Metric
+  R3       33R                         103.22     39.91  Resistor_SMD:R_0805_2012Metric
+  R4       10R                          98.12     39.91  Resistor_SMD:R_0805_2012Metric
+  R5       1k                           64.37     73.65  PCM_4ms_Resistor:R_0805_2012Metric
+  R6       1k                           86.00     73.63  PCM_4ms_Resistor:R_0805_2012Metric
+  R7       1k                          108.31     73.63  PCM_4ms_Resistor:R_0805_2012Metric
+  R8       1k                          130.40     73.63  PCM_4ms_Resistor:R_0805_2012Metric
+  R9       10k                          38.40    187.89  PCM_4ms_Resistor:R_0805_2012Metric
+  R37      470R                         43.28    187.92  Resistor_SMD:R_0805_2012Metric
+RN: 4
+  RN1      R_Pack09                     97.82    188.90  Resistor_THT:R_Array_SIP9
+  RN2      R_Pack09                    232.28    189.35  Resistor_THT:R_Array_SIP9
+  RN3      R_Pack09                    165.90     29.49  Resistor_THT:R_Array_SIP9
+  RN4      R_Pack09                    280.10     30.44  Resistor_THT:R_Array_SIP9
+RV: 16
+  RV1      10k slide                    36.49    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV2      10k slide                    52.99    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV3      10k slide                    69.55    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV4      10k slide                    86.05    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV5      10k slide                   102.64    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV6      10k slide                   119.20    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV7      10k slide                   135.75    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV8      10k slide                   152.35    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV9      10k slide                   168.90    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV10     10k slide                   185.46    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV11     10k slide                   201.98    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV12     10k slide                   218.54    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV13     10k slide                   235.12    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV14     10k slide                   251.66    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV15     10k slide                   268.19    129.98  PCM_synthseqr:PS45-11PC3BR10K
+  RV16     10k slide                   284.75    129.98  PCM_synthseqr:PS45-11PC3BR10K
+S: 2
+  S1       SLW-913535-2A-RA-D          188.95     35.53  PCM_synthseqr:Marquardt_rockerswitch_1803.5102
+  S2       TS11-674-135-BK-100-RA-D     60.99     29.73  Samacsys:TS11674105BK160RAD
+SW: 36
+  SW1      MX hotswap                   36.45    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW2      MX hotswap                   52.99    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW3      MX hotswap                   69.53    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW4      MX hotswap                   86.15    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW5      MX hotswap                  102.66    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW6      MX hotswap                  119.23    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW7      MX hotswap                  135.72    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW8      MX hotswap                  152.28    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW9      MX hotswap                  168.93    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW10     MX hotswap                  185.41    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW11     MX hotswap                  201.93    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW12     MX hotswap                  218.56    174.32  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW13     MX hotswap                  235.08    174.31  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW14     MX hotswap                  251.60    174.39  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW15     MX hotswap                  268.15    174.34  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW16     MX hotswap                  284.73    174.38  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW17     MX hotswap                  151.68     65.12  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW18     MX hotswap                  169.84     65.10  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW19     MX hotswap                  187.86     65.07  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW20     MX hotswap                  205.97     65.07  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW21     MX hotswap                  224.04     65.16  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW22     MX hotswap                  242.24     65.07  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW23     MX hotswap                  260.24     65.07  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW24     MX hotswap                  278.44     65.14  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW25     MX hotswap                  151.66     86.14  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW26     MX hotswap                  169.86     86.18  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW27     MX hotswap                  187.94     86.14  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW28     MX hotswap                  205.94     86.14  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW29     MX hotswap                  224.03     86.14  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW30     MX hotswap                  242.24     86.14  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW31     MX hotswap                  260.24     86.14  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW32     MX hotswap                  278.44     86.16  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW33     MX hotswap                   59.00     86.00  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW34     MX hotswap                   81.02     86.08  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW35     MX hotswap                  103.10     86.00  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+  SW36     MX hotswap                  125.46     86.08  PCM_marbastlib-mx:SW_MX_HS_KS-2P02B01-01_1u
+U: 5
+  U1       CD74HC4067                  110.91    122.23  Package_SO:SOIC-24W_7.5x15.4mm_P1.27mm
+  U2       CD74HC4067                  173.95    135.95  Package_SO:SOIC-24W_7.5x15.4mm_P1.27mm
+  U3       CD74HC4067                  217.85     37.45  Package_SO:SOIC-24W_7.5x15.4mm_P1.27mm
+  U4       H11L1                       116.91     52.20  Package_DIP:SMDIP-6_W9.53mm
+  U5       74AHCT125                    49.84    188.65  Package_SO:TSSOP-14_4.4x5mm_P0.65mm
+cydRX: 1
+  cydRX1   TestPoint                    62.87     46.90  TestPoint:TestPoint_Pad_D1.5mm
+cydTX: 1
+  cydTX1   TestPoint                    62.87     50.41  TestPoint:TestPoint_Pad_D1.5mm
+gnd_test: 1
+  gnd_test1 TestPoint                    29.71     62.81  TestPoint:TestPoint_Pad_D1.5mm
+leddata: 1
+  leddata1 TestPoint                    62.40     58.22  TestPoint:TestPoint_Pad_D1.5mm
+midirx: 1
+  midirx1  TestPoint                    94.54     58.16  TestPoint:TestPoint_Pad_D1.5mm
+miditx: 1
+  miditx1  TestPoint                    94.35     61.89  TestPoint:TestPoint_Pad_D1.5mm
+mux_s: 4
+  mux_s0   TestPoint                    92.39     66.64  TestPoint:TestPoint_Pad_D1.5mm
+  mux_s1   TestPoint                    58.71     52.01  TestPoint:TestPoint_Pad_D1.5mm
+  mux_s2   TestPoint                    58.68     54.90  TestPoint:TestPoint_Pad_D1.5mm
+  mux_s3   TestPoint                    62.82     43.23  TestPoint:TestPoint_Pad_D1.5mm
+
+## nets
+
++5V  (7)
+    C1.1 C7.1 D1.1 D2.1 D4.1 J1.1 NetTie_1.2
+/+5V_CYD  (3)
+    C2.1 D2.2 J5.1
+/+5V_FTHR  (3)
+    A1.19 C3.1 D1.2
+/BTN0  (3)
+    RN1.2 SW1.1 U2.9
+/BTN1  (3)
+    RN1.3 SW2.1 U2.8
+/BTN10  (3)
+    RN2.4 SW11.1 U2.21
+/BTN11  (3)
+    RN2.5 SW12.1 U2.20
+/BTN12  (3)
+    RN2.6 SW13.1 U2.19
+/BTN13  (3)
+    RN2.7 SW14.1 U2.18
+/BTN14  (3)
+    RN2.8 SW15.1 U2.17
+/BTN15  (3)
+    RN2.9 SW16.1 U2.16
+/BTN16  (3)
+    RN4.2 SW17.1 U3.9
+/BTN17  (3)
+    RN4.3 SW18.1 U3.8
+/BTN18  (3)
+    RN4.4 SW19.1 U3.7
+/BTN19  (3)
+    RN4.5 SW20.1 U3.6
+/BTN2  (3)
+    RN1.4 SW3.1 U2.7
+/BTN20  (3)
+    RN4.6 SW21.1 U3.5
+/BTN21  (3)
+    RN4.7 SW22.1 U3.4
+/BTN22  (3)
+    RN4.8 SW23.1 U3.3
+/BTN23  (3)
+    RN4.9 SW24.1 U3.2
+/BTN24  (3)
+    RN3.2 SW25.1 U3.23
+/BTN25  (3)
+    RN3.3 SW26.1 U3.22
+/BTN26  (3)
+    RN3.4 SW27.1 U3.21
+/BTN27  (3)
+    RN3.5 SW28.1 U3.20
+/BTN28  (3)
+    RN3.6 SW29.1 U3.19
+/BTN29  (3)
+    RN3.7 SW30.1 U3.18
+/BTN3  (3)
+    RN1.5 SW4.1 U2.6
+/BTN30  (3)
+    RN3.8 SW31.1 U3.17
+/BTN31  (3)
+    RN3.9 SW32.1 U3.16
+/BTN4  (3)
+    RN1.6 SW5.1 U2.5
+/BTN5  (3)
+    RN1.7 SW6.1 U2.4
+/BTN6  (3)
+    RN1.8 SW7.1 U2.3
+/BTN7  (3)
+    RN1.9 SW8.1 U2.2
+/BTN8  (3)
+    RN2.2 SW9.1 U2.23
+/BTN9  (3)
+    RN2.3 SW10.1 U2.22
+/CYD_RX  (3)
+    A1.22 J5.2 cydRX1.1
+/CYD_TX  (3)
+    A1.23 J5.3 cydTX1.1
+/DIN_IN4  (2)
+    J6.4 R1.1
+/DIN_OUT4  (2)
+    J7.4 R3.2
+/DIN_OUT5  (2)
+    J7.5 R4.2
+/ENC_A  (2)
+    A1.7 ENC1.A1
+/ENC_B  (2)
+    A1.8 ENC1.B1
+/ENC_SW  (2)
+    A1.9 ENC1.D1
+/LED_5V  (76)
+    C19.2 C22.2 C23.2 C24.2 C25.2 C26.2 C27.2 C28.2 C29.2 C30.2 C31.2 C32.2 C33.2 C34.2 C35.2 C36.2 C37.2 C38.2 C39.2 C40.2 C41.2 C42.2 C43.2 C44.2 C45.2 C46.2 C47.2 C48.2 C49.2 C50.2 C51.2 C52.2 C53.2 C54.2 C55.2 C56.2 C62.2 J4.1 LED1.1 LED2.1 LED3.1 LED4.1 LED5.1 LED6.1 LED7.1 LED8.1 LED9.1 LED10.1 LED11.1 LED12.1 LED13.1 LED14.1 LED15.1 LED16.1 LED17.1 LED18.1 LED19.1 LED20.1 LED21.1 LED22.1 LED23.1 LED24.1 LED25.1 LED26.1 LED27.1 LED28.1 LED29.1 LED30.1 LED31.1 LED32.1 LED33.1 LED34.1 LED35.1 LED36.1 NetTie_1.1 U5.14
+/LED_DATA  (4)
+    A1.26 R9.2 U5.2 leddata1.1
+/LED_PRE  (2)
+    R37.1 U5.3
+/LED_SIG  (3)
+    J4.2 LED1.3 R37.2
+/MIDI_RX  (4)
+    A1.14 R2.2 U4.4 midirx1.1
+/MIDI_TX  (3)
+    A1.15 R4.1 miditx1.1
+/OPTO_A  (3)
+    D3.2 R1.2 U4.1
+/OPTO_K  (3)
+    D3.1 J6.5 U4.2
+/PLAY  (3)
+    A1.10 R8.1 SW36.2
+/RECORD  (3)
+    A1.11 R7.1 SW35.2
+/SHIFT  (3)
+    A1.6 R5.1 SW33.2
+/STOP  (3)
+    A1.12 R6.1 SW34.2
+3V3  (36)
+    A1.2 C58.2 C59.1 C60.1 C61.1 C63.1 R2.1 R3.1 RN1.1 RN2.1 RN3.1 RN4.1 RV1.1 RV2.1 RV3.1 RV4.1 RV5.1 RV6.1 RV7.1 RV8.1 RV9.1 RV10.1 RV11.1 RV12.1 RV13.1 RV14.1 RV15.1 RV16.1 SW33.1 SW34.1 SW35.1 SW36.1 U1.24 U2.24 U3.24 U4.6
+FADER_SIGNALS  (2)
+    A1.5 U1.1
+GND  (181)
+    A1.4 C1.2 C2.2 C3.2 C4.1 C5.2 C6.2 C7.2 C8.2 C9.2 C10.2 C11.2 C12.1 C13.1 C14.1 C15.1 C16.1 C17.1 C18.1 C19.1 C20.2 C21.1 C22.1 C23.1 C24.1 C25.1 C26.1 C27.1 C28.1 C29.1 C30.1 C31.1 C32.1 C33.1 C34.1 C35.1 C36.1 C37.1 C38.1 C39.1 C40.1 C41.1 C42.1 C43.1 C44.1 C45.1 C46.1 C47.1 C48.1 C49.1 C50.1 C51.1 C52.1 C53.1 C54.1 C55.1 C56.1 C57.1 C58.1 C59.2 C60.2 C61.2 C62.1 C63.2 D4.2 ENC1.E1 ENC1.C1 J1.2 J1.3 J4.3 J5.4 J7.2 LED1.4 LED2.4 LED3.4 LED4.4 LED5.4 LED6.4 LED7.4 LED8.4 LED9.4 LED10.4 LED11.4 LED12.4 LED13.4 LED14.4 LED15.4 LED16.4 LED17.4 LED18.4 LED19.4 LED20.4 LED21.4 LED22.4 LED23.4 LED24.4 LED25.4 LED26.4 LED27.4 LED28.4 LED29.4 LED30.4 LED31.4 LED32.4 LED33.4 LED34.4 LED35.4 LED36.4 R5.2 R6.2 R7.2 R8.2 R9.1 RV1.3 RV2.3 RV3.3 RV4.3 RV5.3 RV6.3 RV7.3 RV8.3 RV9.3 RV10.3 RV11.3 RV12.3 RV13.3 RV14.3 RV15.3 RV16.3 S1.2 S2.1 S2.3 S2.4 SW1.2 SW2.2 SW3.2 SW4.2 SW5.2 SW6.2 SW7.2 SW8.2 SW9.2 SW10.2 SW11.2 SW12.2 SW13.2 SW14.2 SW15.2 SW16.2 SW17.2 SW18.2 SW19.2 SW20.2 SW21.2 SW22.2 SW23.2 SW24.2 SW25.2 SW26.2 SW27.2 SW28.2 SW29.2 SW30.2 SW31.2 SW32.2 U1.15 U1.12 U2.12 U2.15 U3.15 U3.12 U4.5 U5.1 U5.10 U5.5 U5.13 U5.9 U5.12 U5.7 U5.4 gnd_test1.1
+Net-(A1-MISO)  (2)
+    A1.13 S1.3
+Net-(A1-RST)  (3)
+    A1.1 C57.2 S2.2
+Net-(LED1-DOUT)  (2)
+    LED1.2 LED2.3
+Net-(LED10-DIN)  (2)
+    LED9.2 LED10.3
+Net-(LED10-DOUT)  (2)
+    LED10.2 LED11.3
+Net-(LED11-DOUT)  (2)
+    LED11.2 LED12.3
+Net-(LED12-DOUT)  (2)
+    LED12.2 LED13.3
+Net-(LED13-DOUT)  (2)
+    LED13.2 LED14.3
+Net-(LED14-DOUT)  (2)
+    LED14.2 LED15.3
+Net-(LED15-DOUT)  (2)
+    LED15.2 LED16.3
+Net-(LED16-DOUT)  (2)
+    LED16.2 LED17.3
+Net-(LED17-DOUT)  (2)
+    LED17.2 LED18.3
+Net-(LED18-DOUT)  (2)
+    LED18.2 LED19.3
+Net-(LED19-DOUT)  (2)
+    LED19.2 LED20.3
+Net-(LED2-DOUT)  (2)
+    LED2.2 LED3.3
+Net-(LED20-DOUT)  (2)
+    LED20.2 LED21.3
+Net-(LED21-DOUT)  (2)
+    LED21.2 LED22.3
+Net-(LED22-DOUT)  (2)
+    LED22.2 LED23.3
+Net-(LED23-DOUT)  (2)
+    LED23.2 LED24.3
+Net-(LED24-DOUT)  (2)
+    LED24.2 LED25.3
+Net-(LED25-DOUT)  (2)
+    LED25.2 LED26.3
+Net-(LED26-DOUT)  (2)
+    LED26.2 LED27.3
+Net-(LED27-DOUT)  (2)
+    LED27.2 LED28.3
+Net-(LED28-DOUT)  (2)
+    LED28.2 LED29.3
+Net-(LED29-DOUT)  (2)
+    LED29.2 LED30.3
+Net-(LED3-DOUT)  (2)
+    LED3.2 LED4.3
+Net-(LED30-DOUT)  (2)
+    LED30.2 LED31.3
+Net-(LED31-DOUT)  (2)
+    LED31.2 LED32.3
+Net-(LED32-DOUT)  (2)
+    LED32.2 LED33.3
+Net-(LED33-DOUT)  (2)
+    LED33.2 LED34.3
+Net-(LED34-DOUT)  (2)
+    LED34.2 LED35.3
+Net-(LED35-DOUT)  (2)
+    LED35.2 LED36.3
+Net-(LED4-DOUT)  (2)
+    LED4.2 LED5.3
+Net-(LED5-DOUT)  (2)
+    LED5.2 LED6.3
+Net-(LED6-DOUT)  (2)
+    LED6.2 LED7.3
+Net-(LED7-DOUT)  (2)
+    LED7.2 LED8.3
+Net-(LED8-DOUT)  (2)
+    LED8.2 LED9.3
+S0  (5)
+    A1.16 U1.10 U2.10 U3.10 mux_s0.1
+S1  (5)
+    A1.25 U1.11 U2.11 U3.11 mux_s1.1
+S2  (5)
+    A1.24 U1.14 U2.14 U3.14 mux_s2.1
+S3  (5)
+    A1.21 U1.13 U2.13 U3.13 mux_s3.1
+SIG_BTNA  (2)
+    A1.28 U2.1
+SIG_BTNB  (2)
+    A1.27 U3.1
+SlidePotentiometer_01  (3)
+    C4.2 RV1.2 U1.9
+SlidePotentiometer_02  (3)
+    C5.1 RV2.2 U1.8
+SlidePotentiometer_03  (3)
+    C6.1 RV3.2 U1.7
+SlidePotentiometer_04  (3)
+    C20.1 RV4.2 U1.6
+SlidePotentiometer_05  (3)
+    C8.1 RV5.2 U1.5
+SlidePotentiometer_06  (3)
+    C9.1 RV6.2 U1.4
+SlidePotentiometer_07  (3)
+    C10.1 RV7.2 U1.3
+SlidePotentiometer_08  (3)
+    C11.1 RV8.2 U1.2
+SlidePotentiometer_09  (3)
+    C18.2 RV9.2 U1.23
+SlidePotentiometer_10  (3)
+    C21.2 RV10.2 U1.22
+SlidePotentiometer_11  (3)
+    C17.2 RV11.2 U1.21
+SlidePotentiometer_12  (3)
+    C16.2 RV12.2 U1.20
+SlidePotentiometer_13  (3)
+    C15.2 RV13.2 U1.19
+SlidePotentiometer_14  (3)
+    C14.2 RV14.2 U1.18
+SlidePotentiometer_15  (3)
+    C13.2 RV15.2 U1.17
+SlidePotentiometer_16  (3)
+    C12.2 RV16.2 U1.16

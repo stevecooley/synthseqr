@@ -5,16 +5,20 @@
  * Synthseqr v3 — Hardware Bring-Up Test Suite
  * Target: Adafruit Feather M4 Express (SAMD51)
  *
- * Pin map verified against synthseqr_v3_wtf.kicad_pcb:
- *   D5           LED data  -> 74AHCT125 -> 470R -> SK6812 chain (33 LEDs)
+ * Pin map verified against the fab revision of synthseqr_v3.kicad_pcb:
+ *   D5           LED data  -> 74AHCT125 -> R37 -> SK6812 chain (36 LEDs)
  *   D4/D6/D9/D12 mux select S0/S1/S2/S3 (shared by all three CD74HC4067)
  *   A0           fader mux COM   (U1, 16 slide pots)
  *   SDA          button mux COM  (U2, BTN0-15)
  *   SCL          button mux COM  (U3, BTN16-31)
- *   D13          BTN33 direct (shares pin with onboard LED — see test 7)
+ *   A1/MOSI/SCK/A5  SHIFT / STOP / RECORD / PLAY  (SW33-36, direct)
+ *   MISO         S1 slide switch (to GND, internal pull-up)
  *   A2/A3/A4     encoder A / B / switch
  *
- * Buttons are active LOW (switch to GND, 10k pull-up via RN1-4).
+ * TWO BUTTON POLARITIES. SW1-32 switch to GND against RN1-4 10k pull-ups, so
+ * they are active LOW. The four transport buttons switch to 3V3 against R5-R8
+ * 1k pull-downs, so they are active HIGH and must NOT use INPUT_PULLUP.
+ *
  * Do NOT call Wire.begin() — SDA/SCL are plain GPIO on this board.
  *
  * Send a digit over serial at 115200 to run a test. '?' reprints the menu.
@@ -26,15 +30,20 @@ constexpr uint8_t PIN_S0 = 4, PIN_S1 = 6, PIN_S2 = 9, PIN_S3 = 12;
 constexpr uint8_t PIN_FADER = A0;
 constexpr uint8_t PIN_BTN_A = SDA;   // BTN0-15
 constexpr uint8_t PIN_BTN_B = SCL;   // BTN16-31
-constexpr uint8_t PIN_BTN_33 = 13;   // direct; A5 is unconnected on this PCB
 constexpr uint8_t PIN_LED_DATA = 5;
 constexpr uint8_t PIN_ENC_A = A2, PIN_ENC_B = A3, PIN_ENC_SW = A4;
+constexpr uint8_t PIN_SLIDE = MISO;  // S1
 
-constexpr uint8_t NUM_LEDS = 33;
+// Transport, in btnState order after the 32 muxed buttons.
+constexpr uint8_t PIN_TRANSPORT[4] = { A1, MOSI, SCK, A5 };
+const char *const TRANSPORT_NAME[4] = { "SHIFT", "STOP", "RECORD", "PLAY" };
+
+constexpr uint8_t NUM_LEDS = 36;
 constexpr uint8_t NUM_FADERS = 16;
-constexpr uint8_t NUM_BTNS = 33;
+constexpr uint8_t NUM_MUXED_BTNS = 32;
+constexpr uint8_t NUM_BTNS = 36;
 
-// Keep this low. 33 SK6812 at full white is ~2A; bring-up runs off whatever
+// Keep this low. 36 SK6812 at full white is ~2A; bring-up runs off whatever
 // supply is on the bench. 40/255 is bright enough to see, gentle on the rail.
 constexpr uint8_t LED_BRIGHTNESS = 40;
 
@@ -64,7 +73,11 @@ void scanAll() {
     btnState[ch]      = (digitalRead(PIN_BTN_A) == LOW);
     btnState[ch + 16] = (digitalRead(PIN_BTN_B) == LOW);
   }
-  btnState[32] = (digitalRead(PIN_BTN_33) == LOW);
+  // Transport buttons are pulled down and switch to 3V3 — inverted vs the muxed
+  // ones, so they read HIGH when pressed.
+  for (uint8_t i = 0; i < 4; i++) {
+    btnState[NUM_MUXED_BTNS + i] = (digitalRead(PIN_TRANSPORT[i]) == HIGH);
+  }
 }
 
 // ---------------------------------------------------------------- encoder
@@ -119,7 +132,7 @@ void testDiagnostic() {
 
 // 1 — walk one LED at a time; confirms count, order, and every solder joint
 void testLedWalk() {
-  Serial.println(F("\nWalking LEDs 0..32 — watch for skips or wrong order."));
+  Serial.println(F("\nWalking LEDs 0..35 — watch for skips or wrong order."));
   for (uint8_t i = 0; i < NUM_LEDS; i++) {
     strip.clear();
     strip.setPixelColor(i, strip.Color(255, 255, 255));
@@ -213,29 +226,45 @@ void testInteractive() {
   while (Serial.available()) Serial.read();
 }
 
-// 7 — D13 sanity: that pin shares the onboard LED, so verify it reads cleanly
-void testD13() {
-  Serial.println(F("\nD13 / BTN33 check — leave it untouched for 2s, then hold it."));
+// 7 — transport buttons. These are the inverted ones: pulled down by R5-R8 and
+// switched to 3V3, so idle is LOW and pressed is HIGH. The idle check catches a
+// pin left with INPUT_PULLUP set, which would pin it high and mask every press.
+void testTransport() {
+  Serial.println(F("\nTransport check (SHIFT / STOP / RECORD / PLAY)."));
+  Serial.println(F("  Hands off for 2s..."));
   delay(300);
-  uint16_t highCount = 0;
-  for (int i = 0; i < 200; i++) { if (digitalRead(PIN_BTN_33) == HIGH) highCount++; delay(10); }
-  Serial.print(F("  idle read HIGH on ")); Serial.print(highCount);
-  Serial.println(F("/200 samples"));
-  if (highCount < 190)
-    Serial.println(F("  -> D13 is NOT idling high. The onboard LED is dragging it down;\n"
-                     "     add an external 10k pull-up to 3V3 on BTN33."));
-  else
-    Serial.println(F("  -> idles high correctly."));
-  Serial.println(F("  Now hold BTN33 for 3s..."));
-  delay(500);
-  uint16_t lowCount = 0;
-  for (int i = 0; i < 300; i++) { if (digitalRead(PIN_BTN_33) == LOW) lowCount++; delay(10); }
-  Serial.print(F("  read LOW on ")); Serial.print(lowCount); Serial.println(F("/300 samples"));
+  uint16_t idleHigh[4] = {0, 0, 0, 0};
+  for (int i = 0; i < 200; i++) {
+    for (uint8_t b = 0; b < 4; b++)
+      if (digitalRead(PIN_TRANSPORT[b]) == HIGH) idleHigh[b]++;
+    delay(10);
+  }
+  for (uint8_t b = 0; b < 4; b++) {
+    Serial.print(F("  ")); Serial.print(TRANSPORT_NAME[b]);
+    Serial.print(F(": idle HIGH on ")); Serial.print(idleHigh[b]);
+    Serial.println(idleHigh[b] > 10 ? F("/200  <- NOT idling low, check pull-down")
+                                    : F("/200  ok"));
+  }
+  Serial.println(F("\n  Now press each one in turn. 15s, q to quit early."));
+  while (Serial.available()) Serial.read();
+  bool seen[4] = {false, false, false, false};
+  for (uint32_t t0 = millis(); millis() - t0 < 15000; ) {
+    for (uint8_t b = 0; b < 4; b++) {
+      if (digitalRead(PIN_TRANSPORT[b]) == HIGH && !seen[b]) {
+        seen[b] = true;
+        Serial.print(F("    ")); Serial.println(TRANSPORT_NAME[b]);
+      }
+    }
+    if (Serial.available() && Serial.read() == 'q') break;
+    delay(5);
+  }
+  for (uint8_t b = 0; b < 4; b++)
+    if (!seen[b]) { Serial.print(F("  never saw ")); Serial.println(TRANSPORT_NAME[b]); }
 }
 
 // 8 — one channel at a time, averaged, for comparing against a DMM
 void testFaderFocus() {
-  uint8_t ch = 1;   // not 0: RV1's wiper is unconnected on this revision
+  uint8_t ch = 0;   // RV1's wiper was unconnected pre-fab; fixed in this revision
   Serial.println(F("\nSingle-channel fader probe."));
   Serial.println(F("  0-9,a-f = channel    r = reset span    q = quit"));
 
@@ -312,7 +341,7 @@ void printMenu() {
   Serial.println(F("  4  fader live bars"));
   Serial.println(F("  5  encoder"));
   Serial.println(F("  6  interactive (keys light LEDs)"));
-  Serial.println(F("  7  D13 / BTN33 pull-up check"));
+  Serial.println(F("  7  transport buttons (active HIGH)"));
   Serial.println(F("  8  single fader probe (for DMM comparison)"));
   Serial.println(F("  ?  this menu"));
 }
@@ -327,7 +356,9 @@ void setup() {
 
   pinMode(PIN_BTN_A, INPUT);        // external 10k pull-ups on RN1-4
   pinMode(PIN_BTN_B, INPUT);
-  pinMode(PIN_BTN_33, INPUT_PULLUP);
+  // R5-R8 pull these down; INPUT_PULLUP here would mask every press.
+  for (uint8_t i = 0; i < 4; i++) pinMode(PIN_TRANSPORT[i], INPUT);
+  pinMode(PIN_SLIDE, INPUT_PULLUP);   // S1 switches to GND, no external pull-up
 
   pinMode(PIN_ENC_A, INPUT_PULLUP);
   pinMode(PIN_ENC_B, INPUT_PULLUP);
@@ -357,7 +388,7 @@ void loop() {
     case '4': testFaders();      break;
     case '5': testEncoder();     break;
     case '6': testInteractive(); break;
-    case '7': testD13();         break;
+    case '7': testTransport();   break;
     case '8': testFaderFocus();  break;
     case '?': printMenu();       break;
     default: return;

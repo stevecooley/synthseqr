@@ -21,26 +21,32 @@ The pin shortage and the missing SD card are what force storage off the MCU.
 
 ### v3 pin map
 
-Derived from `hardware/synthseqr_v3.kicad_pcb` (pad→net), not from the v2
-source. Authoritative as of the first fab run.
+Derived from the fab revision of `hardware/synthseqr_v3.kicad_pcb` (pad→net via
+the symbol's pin-number table), not from the v2 source. Regenerate the
+supporting dump with `tools/kicad_netlist.py`; `hardware/netlist_v3.txt` is the
+committed copy, so a future revision is a re-run and a diff.
 
 | Feather M4 | Net | Notes |
 |---|---|---|
 | A0 | `FADER_SIGNALS` | U1 mux COM — 16 slide pots |
 | SDA / SCL | `SIG_BTNA` / `SIG_BTNB` | U2/U3 mux COM. Plain GPIO — **I2C is unavailable** |
 | D4 / D6 / D9 / D12 | `S0`–`S3` | shared select lines, all three muxes |
-| D5 | `LED_DATA` | → 74AHCT125 level shifter → 33x SK6812 |
+| D5 | `LED_DATA` | R9 10k pulldown → 74AHCT125 → R37 series → 36x SK6812 |
 | A2 / A3 / A4 | `ENC_A` / `ENC_B` / `ENC_SW` | EC11 encoder |
-| D13 | `BTN33` | direct; shares the onboard LED |
+| A1 / MOSI / SCK / A5 | `SHIFT` / `STOP` / `RECORD` / `PLAY` | SW33–36 transport — **active HIGH**, see below |
+| MISO | S1 slide switch | switches to GND; no external pull-up, needs `INPUT_PULLUP` |
 | D0 / D1 | `MIDI_RX` / `MIDI_TX` | `Serial1`. DIN in via H11L1 opto (J6), DIN out (J7) |
 | D10 / D11 | `CYD_TX` / `CYD_RX` | J5, 4-pin to CYD. No `Serial2` — needs SERCOM3, see §7 |
-| — | free | A1, A5, SCK, MOSI, MISO |
+| RST | S2 | reset button; not firmware-visible |
+| — | free | D13 only |
 
-Buttons are active LOW with 10k pull-ups (RN1–4).
+J5 to the CYD is pin 1 `+5V_CYD`, 2 `CYD_RX`, 3 `CYD_TX`, 4 `GND`.
 
-> **Known discrepancy:** `tests/synthseqr_bringup/synthseqr_bringup.ino` sets
-> `PIN_BTN_33 = A5`, but the PCB routes BTN33 to **D13** and leaves A5
-> unconnected. Test 7 currently reads a floating pin.
+> **The two button groups have opposite polarity.** SW1–32 (the 16 step buttons
+> and the 8x2 block) switch to GND against RN1–4 10k pull-ups: **active LOW**,
+> read with `INPUT_PULLUP`. SW33–36 (transport) switch to **3V3** against R5–R8
+> 1k pull-downs: **active HIGH**, read with plain `INPUT`. Scanning all 36 with
+> one polarity would leave the transport buttons reading permanently inverted.
 
 ## 2. Ownership model
 
