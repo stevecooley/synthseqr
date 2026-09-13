@@ -281,6 +281,27 @@ require a board change.
 Blob store is trivially correct and ships sooner; parsing is eventually required
 for a web UI that can browse and edit patterns. Undecided.
 
+**Resolved — `analogRead()` is useless on this chip until `analogReference()`
+is called.** `adafruit:samd` 1.7.17 `init()` (`cores/arduino/wiring.c`)
+configures the prescaler, resolution, sample time and averaging for ADC0/ADC1
+and never writes `REFCTRL`, so `REFSEL` keeps its reset value `0x0` = `INTREF`
+— the internal bandgap, 1.0 V by default. Full scale is then 1.0 V, and a fader
+wired 3V3 - element - GND saturates at 4095 a third of the way up its travel.
+It reads exactly like an exponential-taper pot.
+
+```cpp
+analogReference(AR_DEFAULT);   // REFSEL = INTVCC1; on the SAMD51 that is VDDANA
+analogReadResolution(12);
+```
+
+The REFSEL encodings are **not** shared with the SAMD21: here `INTVCC0` = `0x2`
+= ½ VDDANA and `INTVCC1` = `0x3` = VDDANA, while on the SAMD21 `0x2` is VDDANA
+and `0x3` is AREFA. AREF (header pin 3) has no net on v3, so `AR_EXTERNAL` is
+not an option — which is fine, since `INTVCC1` is the same rail the pots divide
+and the reading comes out ratiometric.
+
+See `docs/fader_triage.md`; `tests/synthseqr_bringup/` grew tests 9/a/b for it.
+
 ## 8. Build
 
 v2 was built on macOS (`.vscode/arduino.json` references
