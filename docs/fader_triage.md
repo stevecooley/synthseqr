@@ -172,6 +172,60 @@ Then, power off, DMM from each mounting lug and from the frame to `GND`, `3V3`
 and `+5V`: anything under ~100 kΩ is a contact. Lift the pot and check whether
 the exposed copper is at the hole wall on either surface.
 
+### Should the mounting lugs come off?
+
+Tempting, and it would remove the failure mode — but not yet, and probably not
+as the permanent answer.
+
+**First find out whether it is even possible** (30 seconds, on a spare pot):
+
+1. Are the lugs metal, or plastic locating pegs? Plastic kills the theory
+   outright.
+2. Continuity lug ↔ lug. If the two lugs are *not* common, a single contact
+   carries no current and you need copper at **both** holes, ~50 mm apart, at
+   two different potentials — a much narrower coincidence.
+3. Continuity lug ↔ each of the three terminals. If the frame is tied to a
+   terminal, then one contact *is* enough, and that is the case to rule out
+   first (see the 5 V-on-the-element warning above).
+
+**Do not cut the lugs off the pot that is fitted.** It is the only instance of
+the fault you have. Cutting makes the symptom vanish without saying which
+candidate it was, and if the real cause is a bridge on the pot pads the heat
+will simply continue — with a part now butchered for nothing.
+
+**The same experiment, reversibly:** a strip of Kapton or fish paper between the
+pot body and the board, or nylon shoulder washers in the holes, lugs left
+unsoldered. Heat gone with the insulator and back without it proves it.
+
+**Why not permanently:** a 45 mm fader takes side and downward load every time
+it is played. Without the lugs the three signal pins are the only anchor, and
+the joints crack and lift pads — on 16 faders that is when, not if. It is
+defensible only if a front panel carries the faders and the lugs are just
+alignment.
+
+**The board fix is needed either way,** because the board's own mounting holes
+have the same exposure and those get metal standoffs and screws:
+
+| hole | nearest 5 V-net pad |
+|---|---|
+| `H1` | `D4` (`+5V`), 11.7 mm |
+| `H3` / `H4` | `LED1` / `LED16` (`/LED_5V`), 11.4 mm |
+| `H6` (160.70, 190.85) | `C28` (`/LED_5V`), 11.8 mm |
+| `H7` | `J5` (`/+5V_CYD`), 9.1 mm |
+
+Close enough that a pour plausibly reaches them. So: clearance around every NPTH
+hole, and **set the hole-clearance DRC constraint** so it cannot come back. For
+a metal-frame fader, pick a side deliberately — either full clearance so the
+frame floats, or plated holes tied to GND on purpose. Floating-by-accident with
+copper nearby is the one option that bites.
+
+Two traps while you are in there. Deleting the mounting-hole *pads* from the
+footprint does not help: the physical hole still has to exist, and a hole drawn
+as a graphic instead of a pad is invisible to DRC — which is the case
+`tools/kicad_hole_clearance.py` goes looking for. And `H6` is used twice, at
+(160.70, 190.85) and (147.06, 46.18); one of them wants renaming before the next
+netlist diff.
+
 ### Why fault 1 hides fault 2
 
 "Reads close to the upper value over the top of the travel" is exactly what a
