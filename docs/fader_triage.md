@@ -73,10 +73,35 @@ Already applied in `tests/synthseqr_bringup/`. Two traps worth writing down:
   the reading stopped changing, and how far the unclipped part deviates from a
   straight line.
 
-After the fix, expect 1241 counts per volt and 4095 only at the very top of the
-travel.
+After the fix, expect 4095 only at the very top of the travel, and
+`4095 / rail` counts per volt — 1264/V on a 3.24 V rail.
+
+Run test 9 with the fader about **a quarter** of the way up, not at mid travel:
+half rail is full scale for both of the low references, so two of the four rows
+would read 4095 and say nothing. At a quarter of a 3.24 V rail the wiper is
+0.81 V and the rows separate cleanly:
+
+| REFSEL | reference | measured FS | raw at 0.81 V |
+|---|---|---|---|
+| `0x0` | INTREF bandgap | 1.00 V | 3317 |
+| `0x2` | INTVCC0, ½ VDDANA | 1.62 V | 2048 |
+| `0x3` | INTVCC1, VDDANA | 3.24 V | **1024** |
+| `0x4` | AREFA | — | garbage; the pin is unconnected |
+
+The sketch measures the rail itself against the 1.0 V bandgap rather than
+trusting `V_RAIL_NOM`, so those numbers follow whatever your regulator actually
+puts out.
 
 ## 2. The heat: the designed circuit cannot do it
+
+> **Closed on the first board, 2026-09-14.** The mounting holes do have copper
+> clearance — the lug theory was wrong. Replacing `RV1` made the heat go away,
+> so it was the part: a pot whose element was a fraction of 10 k, or shorted
+> internally between the wiper and an end. An internal wiper-to-top short would
+> also have compressed the top of the travel, which is worth remembering,
+> because it means some of the original "exponential" shape may have been the
+> pot and not only the ADC reference. The rest of this section is the process
+> that got there; keep it for the next one.
 
 `RV1–16` are PS45-11PC3BR10K — 45 mm travel, 10 kΩ, **0.25 W**. Wired as the
 netlist has them (3V3 – element – GND):

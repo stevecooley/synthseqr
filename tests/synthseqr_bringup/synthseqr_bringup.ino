@@ -84,20 +84,23 @@ volatile uint8_t encPrev = 0;
 // the same rail the faders divide, so the reading is ratiometric and rail sag
 // cancels out.
 constexpr float ADC_FS       = 4095.0f;   // 12-bit
-constexpr float V_RAIL_NOM   = 3.30f;     // nominal 3V3; measure yours and edit
+constexpr float V_RAIL_NOM   = 3.30f;     // fallback only; the rail is measured
 
 // REFSEL values from the SAMD51 CMSIS header (component/adc.h). 0x1 is reserved.
-struct AdcRef { uint8_t refsel; float volts; const char *name; };
+struct AdcRef { uint8_t refsel; const char *name; };
 const AdcRef ADC_REFS[] = {
-  { 0x0, 1.00f,          "INTREF  bandgap 1.0V  (reset default: the bug)" },
-  { 0x2, V_RAIL_NOM / 2, "INTVCC0 1/2 VDDANA                            " },
-  { 0x3, V_RAIL_NOM,     "INTVCC1 VDDANA        (what we want)          " },
-  { 0x4, 0.0f,           "AREFA   external AREF (unconnected on v3)     " },
+  { 0x0, "INTREF  bandgap 1.0V  (reset default: the bug)" },
+  { 0x2, "INTVCC0 1/2 VDDANA                            " },
+  { 0x3, "INTVCC1 VDDANA        (what we want)          " },
+  { 0x4, "AREFA   external AREF (unconnected on v3)     " },
 };
 constexpr uint8_t NUM_ADC_REFS = sizeof(ADC_REFS) / sizeof(ADC_REFS[0]);
 
-// Volts per count, derived from whatever reference is actually selected.
-float adcRefVolts = V_RAIL_NOM;
+// The 3V3 rail, and full scale under the reference currently selected. Both
+// measured at boot and refreshed by adcReportRef(); the constant above is only
+// what they fall back to if the internal channels read implausibly.
+float adcRailVolts = V_RAIL_NOM;
+float adcRefVolts  = V_RAIL_NOM;
 
 uint8_t adcGetRefSel() {
 #if defined(__SAMD51__)
@@ -113,13 +116,15 @@ const char *adcRefName(uint8_t refsel) {
   return "unknown";
 }
 
-// Datasheet value for a REFSEL, for when the measurement below is unavailable.
-// An external AREF has no nominal, so fall back to the rail rather than 0.
+// What a REFSEL should come out at, for when a measurement is unavailable.
+// An external AREF has no nominal at all — on v3 the pin is not even connected.
 float adcRefNominal(uint8_t refsel) {
-  for (uint8_t i = 0; i < NUM_ADC_REFS; i++)
-    if (ADC_REFS[i].refsel == refsel && ADC_REFS[i].volts > 0.0f)
-      return ADC_REFS[i].volts;
-  return V_RAIL_NOM;
+  switch (refsel) {
+    case 0x0: return 1.00f;                  // INTREF, SUPC VREF.SEL resets to 1V0
+    case 0x2: return adcRailVolts / 2.0f;    // INTVCC0
+    case 0x3: return adcRailVolts;           // INTVCC1
+    default:  return 0.0f;                   // AREFA/B/C
+  }
 }
 
 // Point REFCTRL straight at a REFSEL value. The datasheet requires throwing
@@ -174,7 +179,7 @@ float adcMeasureRefVolts() {
 #if defined(__SAMD51__)
   uint16_t raw = adcReadInternal(ADC_INPUTCTRL_MUXPOS_SCALEDIOVCC_Val);
   if (raw < 200 || raw > 4090) return 0.0f;        // clipped or dead
-  float v = (V_RAIL_NOM / 4.0f) * ADC_FS / raw;
+  float v = (adcRailVolts / 4.0f) * ADC_FS / raw;
   if (v < 0.5f || v > 4.0f) return 0.0f;
   return v;
 #else
@@ -182,7 +187,34 @@ float adcMeasureRefVolts() {
 #endif
 }
 
+// The 3V3 rail itself, measured rather than assumed. SCALEDIOVCC is VDDIO/4, so
+// against the 1.0V bandgap the count is (VDD/4)/1.0 * 4095 and VDD falls out.
+// It has to be the bandgap: against INTVCC1 the reference IS VDDANA, the ratio
+// cancels, and the answer is 1024 counts no matter what the rail is doing.
+float adcMeasureRailVolts() {
+#if defined(__SAMD51__)
+  uint8_t saved = adcGetRefSel();
+  SUPC->VREF.bit.SEL = SUPC_VREF_SEL_1V0_Val;
+  SUPC->VREF.bit.VREFOE = 1;                       // as the core does for INTREF
+  adcSetRefSel(ADC_REFCTRL_REFSEL_INTREF_Val);
+  uint16_t raw = adcReadInternal(ADC_INPUTCTRL_MUXPOS_SCALEDIOVCC_Val);
+  adcSetRefSel(saved);
+  if (raw < 200 || raw > 4090) return 0.0f;
+  float v = 4.0f * raw / ADC_FS;                   // bandgap tolerance, so ~2%
+  return (v > 2.5f && v < 4.0f) ? v : 0.0f;
+#else
+  return 0.0f;
+#endif
+}
+
 void adcReportRef() {
+  float rail = adcMeasureRailVolts();
+  if (rail > 0.0f) adcRailVolts = rail;
+  Serial.print(F("3V3 rail: "));
+  Serial.print(adcRailVolts, 3);
+  Serial.println(rail > 0.0f ? F("V measured (+/-2%, internal bandgap)")
+                             : F("V assumed — rail measurement failed"));
+
   uint8_t sel = adcGetRefSel();
   Serial.print(F("ADC reference: REFSEL=0x"));
   Serial.print(sel, HEX);
@@ -194,11 +226,12 @@ void adcReportRef() {
     Serial.print(m, 3); Serial.println(F("V full scale"));
   } else {
     adcRefVolts = adcRefNominal(sel);
+    if (adcRefVolts <= 0.0f) adcRefVolts = adcRailVolts;
     Serial.print(F("  nominal "));
     Serial.print(adcRefVolts, 3);
     Serial.println(F("V full scale (SCALEDIOVCC read implausible)"));
   }
-  if (adcRefVolts < V_RAIL_NOM * 0.9f) {
+  if (adcRefVolts < adcRailVolts * 0.9f) {
     Serial.print(F("  *** full scale is only "));
     Serial.print(adcRefVolts, 2);
     Serial.println(F("V — faders pin at 4095 partway up their travel."));
@@ -526,7 +559,15 @@ void testAdcRef() {
   Serial.print(F("  now: ")); adcReportRef();
   Serial.print(F("  fader F")); Serial.print(ch);
   Serial.print(F(" (RV")); Serial.print(ch + 1);
-  Serial.println(F(") — leave it somewhere in mid travel, DMM on the wiper.\n"));
+  Serial.println(F("), DMM on the wiper. Park it about a QUARTER of the way up,"));
+  Serial.println(F("  not mid travel: half rail is full scale for both of the low"));
+  Serial.println(F("  references, so two rows would read 4095 and tell you nothing."));
+  Serial.print(F("  At a quarter of a "));
+  Serial.print(adcRailVolts, 2);
+  Serial.print(F("V rail the wiper is "));
+  Serial.print(adcRailVolts / 4.0f, 2);
+  Serial.println(F("V, and the rows should read roughly"));
+  Serial.println(F("  3317 / 2048 / 1024 for INTREF / INTVCC0 / INTVCC1.\n"));
 
   Serial.println(F("  REFSEL  reference                                       meas FS   raw   wiper"));
   uint8_t saved = adcGetRefSel();
@@ -534,7 +575,7 @@ void testAdcRef() {
     adcSetRefSel(ADC_REFS[i].refsel);
     float    fs   = adcMeasureRefVolts();
     bool     meas = (fs > 0.0f);
-    if (!meas) fs = ADC_REFS[i].volts;        // 0 for an external AREF
+    if (!meas) fs = adcRefNominal(ADC_REFS[i].refsel);   // 0 for external AREF
     uint16_t raw  = readFader(ch, 32);
 
     Serial.print(F("  0x")); Serial.print(ADC_REFS[i].refsel, HEX);
@@ -750,14 +791,14 @@ void testFaderImpedance() {
         float rth = tau * 10.0f;                     // ohms, for C = 100nF
         // Fraction of the rail the wiper sits at — via volts, so a mis-set
         // reference does not quietly turn into a wrong element resistance.
-        float x   = (v0 * adcRefVolts / ADC_FS) / V_RAIL_NOM;
+        float x   = (v0 * adcRefVolts / ADC_FS) / adcRailVolts;
         Serial.print(F("tau ")); Serial.print(tau, 0);
         Serial.print(F("us  R_th ")); Serial.print(rth, 0); Serial.print(F("R"));
         if (x > 0.08f && x < 0.92f) {
           float rtot = rth / (x * (1.0f - x));       // R_th = x(1-x)*Rtotal
           Serial.print(F("  element ~")); Serial.print(rtot / 1000.0f, 2);
           Serial.print(F("k  ->  "));
-          Serial.print(V_RAIL_NOM * V_RAIL_NOM / rtot * 1000.0f, 1);
+          Serial.print(adcRailVolts * adcRailVolts / rtot * 1000.0f, 1);
           Serial.print(F("mW across 3V3"));
           if (rtot < 6000.0f)       Serial.print(F("   <-- well under 10k"));
           else if (rtot > 16000.0f) Serial.print(F("   <-- well over 10k"));
