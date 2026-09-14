@@ -197,6 +197,22 @@ will simply continue — with a part now butchered for nothing.
 pot body and the board, or nylon shoulder washers in the holes, lugs left
 unsoldered. Heat gone with the insulator and back without it proves it.
 
+**Insulating to keep testing** is a reasonable call on boards that cost $300 a
+turn, as long as it is barrier first and coating second — anything painted on a
+pin gets scraped off going into a tight hole:
+
+| | |
+|---|---|
+| nylon shoulder washer or PTFE sleeve in the hole | best; mechanical, survives insertion, reversible |
+| Kapton donut around the hole, or a strip under the body | excellent dielectric, 260°C, peels off, no cure |
+| UV solder-mask pen or conformal coat on the exposed copper | fine if the pin goes in once; verify coverage |
+| clear enamel / nail polish | works cold, but not near a soldering iron |
+| epoxy | avoid — it wins the isolation and loses the rework |
+
+Coat the **board** rather than the pin where you can, and then **measure**: lug
+to `GND`, `3V3` and `+5V` should all read open before power goes on. The
+measurement is the safeguard; the material is just how you got there.
+
 **Why not permanently:** a 45 mm fader takes side and downward load every time
 it is played. Without the lugs the three signal pins are the only anchor, and
 the joints crack and lift pads — on 16 faders that is when, not if. It is

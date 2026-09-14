@@ -19,6 +19,31 @@ v3 replaces that with two processors:
 
 The pin shortage and the missing SD card are what force storage off the MCU.
 
+### Power tree, and what USB alone does not power
+
+From `hardware/netlist_v3.txt`:
+
+```
+J1 barrel "5V 4A in" -> +5V -+- NetTie_1 -> LED_5V -> U5 VCC, 36x SK6812, J4
+                             +- D1 -> +5V_FTHR -> Feather pin 19 (USB)
+                             +- D2 -> +5V_CYD  -> J5 pin 1
+                             +- D4 SMBJ5.0A TVS, C1 1000uF
+Feather 3V3 regulator -> 3V3 -> RN1-4, RV1-16, U1/U2/U3, U4
+```
+
+**`LED_5V` is the barrel jack and nothing else.** It reaches `+5V` through a net
+tie — no diode, no switch — and it is also `U5`'s VCC, so with only USB plugged
+in the level shifter has no supply and all 36 LEDs are dark. That is the
+expected result on USB alone, not a fault. Buttons, encoder and faders keep
+working throughout, because they hang off the Feather's own 3V3 regulator.
+
+> Careful reading diode polarity out of the netlist: pad numbering is not
+> consistent across the footprint libraries this board uses. `D3`'s net names
+> (`OPTO_A` / `OPTO_K`) imply pad 1 = anode, while `D4`, a unidirectional TVS
+> with pad 1 on `+5V`, implies pad 1 = cathode. Both cannot be right. Check
+> `D1`/`D2` against the schematic before concluding which way the power path
+> flows.
+
 ### v3 pin map
 
 Derived from the fab revision of `hardware/synthseqr_v3.kicad_pcb` (pad→net via
