@@ -7,3 +7,4 @@ tests/synthseqr_bringup/.claude/settings.local.json
 # native test binaries — sources are tracked, build products are not
 tests/protocol/test_*
 !tests/protocol/test_*.c
+tests/synthseqr_bringup/.theia/launch.json
