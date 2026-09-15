@@ -94,14 +94,16 @@ puts out.
 
 ## 2. The heat: the designed circuit cannot do it
 
-> **Closed on the first board, 2026-09-14.** The mounting holes do have copper
-> clearance — the lug theory was wrong. Replacing `RV1` made the heat go away,
-> so it was the part: a pot whose element was a fraction of 10 k, or shorted
-> internally between the wiper and an end. An internal wiper-to-top short would
-> also have compressed the top of the travel, which is worth remembering,
-> because it means some of the original "exponential" shape may have been the
-> pot and not only the ADC reference. The rest of this section is the process
-> that got there; keep it for the next one.
+> **2026-09-14:** the mounting holes do have copper clearance, so the lug theory
+> was wrong. Replacing `RV1` appeared to end the heat.
+>
+> **2026-09-15, reopened:** after a couple of hours on USB power the
+> *replacement* `RV1` is hot and `RV2`, fitted to the same board from the same
+> batch, is cold. A new part cooking in the same slot while its neighbour stays
+> cold makes this the **site**, not the part — and it means the first pot was
+> probably a casualty rather than the cause. `RV2` is now the control: every
+> measurement below is worth taking at both positions, because the two are
+> identical by design and anything that differs is the fault.
 
 `RV1–16` are PS45-11PC3BR10K — 45 mm travel, 10 kΩ, **0.25 W**. Wired as the
 netlist has them (3V3 – element – GND):
@@ -266,6 +268,56 @@ as a graphic instead of a pad is invisible to DRC — which is the case
 `tools/kicad_hole_clearance.py` goes looking for. And `H6` is used twice, at
 (160.70, 190.85) and (147.06, 46.18); one of them wants renaming before the next
 netlist diff.
+
+### Where the heat has to come from, given RV2 is fine
+
+Only current through the element heats the element, and the wiper is the only
+tap on it. So there are two shapes, and they are told apart by *where* the part
+is hot and by one resistance measurement:
+
+**Uniformly warm across the body → the element is not 10 kΩ.** The whole strip
+dissipates V²/R. 100 Ω is 109 mW; 10 kΩ is 1.1 mW. In-circuit `pin 1 ↔ pin 3`
+says so immediately, and `RV2` gives you the number it should be.
+
+**Hot at one end → a rail is on the wiper.** With the wiper tied to the top rail
+through some resistance Rb, and the slider a fraction x above the bottom end:
+
+```
+I      = V / (Rb + x*R)
+P_elem = I^2 * x * R      maximal at x*R = Rb, where P_elem = V^2 / (4*Rb)
+```
+
+The consequence is the useful part: **the heat tracks the slider position.** It
+peaks when the remaining leg of the element matches Rb and falls away at both
+extremes. Note where the slider was when you found it hot, then run it to the
+far end — if it cools, that is the mechanism, and the hot end tells you which
+rail is on the wiper. It also means a pot that was cold right after a swap can
+turn hot later simply because the slider moved.
+
+That same position dependence is why this could not be seen earlier: with the
+ADC reference at 1.0 V, F0 read 4095 over most of its travel whether the wiper
+was healthy or held at 3V3.
+
+### The measurement that settles it
+
+**Take the pot out and measure the empty pads,** power off, against `RV2`'s:
+
+| across | expected with nothing fitted |
+|---|---|
+| wiper pad ↔ `3V3` pad | open — only mux off-channel leakage |
+| wiper pad ↔ `GND` pad | open at DC — `C4` blocks |
+| `3V3` pad ↔ `GND` pad | whatever the rest of the board is, same as at `RV2` |
+
+Anything finite from the wiper pad to `3V3` at `RV1` and not at `RV2` is the
+fault, and the pot has been a victim twice. Then power up with the pot still
+out: the empty wiper pad should float, and if it sits hard at 3V3 something on
+the board is driving it. `U1` is a candidate — the first pot's abuse may have
+damaged the channel 0 input — so put a finger on `U1` as well.
+
+Two more free readings while it is hot: the Feather's own 3V3 regulator (warm
+means the fault current is hundreds of mA, cool means tens), and the pot's metal
+frame to `3V3`/`GND`/`+5V`, since clearance at the mounting holes says nothing
+about exposed copper under the body, where the frame lies flat across ~60x10 mm.
 
 ### Why fault 1 hides fault 2
 
