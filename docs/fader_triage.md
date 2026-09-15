@@ -348,10 +348,36 @@ shutdown usually needs unplugging from both mains and host for ~30 s, or a
 reboot. Prove it with a known-good device in that same port before concluding
 anything about the board.
 
-Hunting the short itself is easiest with a current-limited bench supply on the
-3V3 rail at 100 mA: nothing gets damaged, and whatever warms up first is the
-fault. An inline USB power meter is the cheap version — it shows the draw before
-the port decides to protect itself.
+**Measured, Feather removed, 200 Ω range: 8.9 Ω.** Against ~667 Ω expected from
+15 pots, so a hard short — 371 mA at 3.3 V, 1.2 W. That is the collapsed rail,
+and the reason USB stopped enumerating.
+
+Localise it before replacing anything. 1.2 W lands in one part, so **make the
+short find itself**: inject current and feel for the hot spot.
+
+- A current-limited bench supply on 3V3 at 3.3 V / 400 mA is the clean way.
+- Without one, the 5 V barrel supply through a **10 Ω, ≥2 W** series resistor
+  into the rail gives 265 mA with the rail sitting at 2.35 V — safe for
+  everything on 3V3, and still 0.6 W in the short.
+- Wipe isopropyl across the area: the hot spot dries first. A fingertip works
+  too.
+
+The candidates, cheapest first, and note the fault does not care which:
+
+| | rework cost |
+|---|---|
+| a bridge or solder ball across `RV1`'s empty pads — pin 1 is 3V3, pin 3 is GND, and it has been reworked twice | free, just look |
+| one of the five 100 nF on 3V3 (`C58` `C59` `C60` `C61` `C63`) — a cracked MLCC is the classic single-digit-ohm rail short | 20 s each to lift |
+| one of the 15 fitted pots shorted end to end — same batch as the two that already failed, and in parallel they are invisible to a rail measurement | one at a time |
+| `U1`/`U2`/`U3` VCC, or `U4` | see below |
+
+**Do not replace a SOIC-24W on suspicion.** To test a mux, lift only its **pin
+24** (VCC, a corner pin) with a fine tip and a pick, and re-measure. Short gone
+means that part is guilty and has earned the swap; short still there means you
+have not damaged a 24-pin footprint for nothing.
+
+An inline USB power meter is worth having for the re-test afterwards — it shows
+the draw before the port decides to protect itself.
 
 ### Why fault 1 hides fault 2
 
