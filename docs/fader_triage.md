@@ -319,6 +319,40 @@ means the fault current is hundreds of mA, cool means tens), and the pot's metal
 frame to `3V3`/`GND`/`+5V`, since clearance at the mounting holes says nothing
 about exposed copper under the body, where the frame lies flat across ~60x10 mm.
 
+### 2026-09-15: the Feather stopped enumerating
+
+After hours of the `RV1` fault running, USB no longer recognises the board, and
+re-plugging the cable or the hub does not bring it back. The coherent reading is
+that this is the *same* fault, grown: **the SAMD51 is powered from the Feather's
+own 3V3 regulator, so anything that collapses 3V3 leaves the MCU without VDD and
+there is nothing left to enumerate.** Re-plugging cannot help while the short is
+still fitted.
+
+Measure before applying power again, board unpowered:
+
+| across | expected | means |
+|---|---|---|
+| `3V3` ↔ `GND` | ~10 kΩ ÷ pots fitted, so ~5 kΩ with two | each pot's element is a fixed 10 k across the rail whatever the slider is doing; RN1-4 and R2/R3 have no DC path to GND with the switches open |
+| `3V3` ↔ `GND`, `RV1` lifted | should rise to ~10 kΩ | if lifting `RV1` is what restores it, the story closes |
+| `+5V` ↔ `GND` | high, after `C1`/`C2` finish charging the meter | low means a shorted `D4` TVS or bulk cap |
+| Feather USB pin ↔ `GND` | high | this is what the host sees; low explains a port shutting down |
+
+Take them with the Feather off the board if it is on headers — that also splits
+the question in one move. A Feather that enumerates on its own is fine and the
+board is the problem; one that does not gets a **double-tap reset into the UF2
+bootloader**, which runs before any sketch and enumerates as a `FEATHERBOOT`
+drive. Bootloader present means the chip and its USB are alive.
+
+Note that the host end can latch independently: a hub port in overcurrent
+shutdown usually needs unplugging from both mains and host for ~30 s, or a
+reboot. Prove it with a known-good device in that same port before concluding
+anything about the board.
+
+Hunting the short itself is easiest with a current-limited bench supply on the
+3V3 rail at 100 mA: nothing gets damaged, and whatever warms up first is the
+fault. An inline USB power meter is the cheap version — it shows the draw before
+the port decides to protect itself.
+
 ### Why fault 1 hides fault 2
 
 "Reads close to the upper value over the top of the travel" is exactly what a
