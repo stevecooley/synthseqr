@@ -45,6 +45,57 @@ working throughout, because they hang off the Feather's own 3V3 regulator.
 > flows — and see `hardware/footprint_audit.md`, since v3.2 lost a week to
 > exactly this class of error in a hand-drawn footprint.
 
+### Running the whole thing from one USB cable (v3.3 proposal)
+
+Nothing currently back-feeds `LED_5V` from USB, by design. To allow it, add a
+**second Schottky from the Feather's USB pin to `LED_5V`**, anode at the Feather
+side, alongside the existing direct barrel feed:
+
+```
+J1 barrel -> +5V -+- NetTie_1 --------> LED_5V   (5.0V when the jack is in)
+                  +- D1 -> +5V_FTHR -> Feather USB pin
+                                        `- D_NEW -> LED_5V  (4.65V on USB alone)
+```
+
+It self-arbitrates. Barrel in: `LED_5V` sits at 5.0 V and `D_NEW` is reverse
+biased, because the Feather's USB pin is a diode drop below it — nothing pushes
+back into the host. USB only: `LED_5V` gets 5 V less a Schottky drop, which the
+SK6812 are happy with and which still lets the AHCT125 clear their V<sub>IH</sub>.
+Both: the barrel wins. Extend the same node to `+5V_CYD` if the CYD should
+follow.
+
+Two caveats. **It depends on `D1` being the orientation the schematic intends** —
+unresolved, see `hardware/footprint_audit.md`; if `D1` is reversed the board
+already back-feeds and this makes it worse. And plugging USB in now charges
+`C1`'s 1000 µF through `D_NEW`, which is an inrush some hubs will trip on;
+a soft-start or a smaller bulk cap on the USB side is worth considering.
+
+**Budget, because brightness alone bounds nothing.** 36 SK6812 at full white is
+~2.2 A — that is what the 4 A jack is for. A USB 2 port gives 500 mA total:
+
+| | draw |
+|---|---|
+| Feather M4 | ~50 mA |
+| 36 LEDs, powered but dark | ~36 mA (controller quiescent) |
+| 36 LEDs, all white, brightness 40 | ~375 mA |
+| 36 LEDs, all white, full | ~2160 mA |
+| CYD, idle, radios off | ~150 mA |
+| CYD, ESP32 transmitting | peaks ~500 mA |
+
+So: **LEDs on a 500 mA port, yes** — ~400 mA of headroom is about brightness 45
+all-white, and a sequencer pattern lighting a handful of pixels never comes
+close. **LEDs and the CYD on the same 500 mA port, only with the radios off**,
+and even then the ESP32's TX peaks are what `C2`'s 470 µF exists to cover. On a
+900 mA USB 3 port both fit comfortably. For one cable at full brightness the
+honest answer is a USB-C PD sink (CH224K or similar) negotiating 5 V at 3 A,
+which is a new part and a power-only connector.
+
+The firmware half is in `tests/synthseqr_bringup/`: `LED_BUDGET_MA` and
+`ledShowCapped()` scale each frame to a mA ceiling before `show()`, since a
+brightness cap alone still lets 36 white pixels draw 8x what a dim pattern does.
+Test `c` walks brightness with a running estimate so the estimate can be
+calibrated against a meter.
+
 ### v3 pin map
 
 Derived from the fab revision of `hardware/synthseqr_v3.kicad_pcb` (pad→net via

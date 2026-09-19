@@ -48,11 +48,55 @@ constexpr uint8_t NUM_FADERS = 16;
 constexpr uint8_t NUM_MUXED_BTNS = 32;
 constexpr uint8_t NUM_BTNS = 36;
 
-// Keep this low. 36 SK6812 at full white is ~2A; bring-up runs off whatever
+// Keep this low. 36 SK6812 at full white is ~2.2A; bring-up runs off whatever
 // supply is on the bench. 40/255 is bright enough to see, gentle on the rail.
 constexpr uint8_t LED_BRIGHTNESS = 40;
 
+// Ceiling for the LED chain, enforced per frame by ledShowCapped(). A brightness
+// setting alone does not bound anything: 36 pixels at white draw 8x what 36 at
+// a dim single colour do. The budget has to be on the sum.
+//
+//   barrel jack, 5V 4A     2000   (the design point, room for full white)
+//   USB 3 port, 900mA       700   (less the Feather's own ~50mA)
+//   USB 2 port, 500mA       400
+//   USB 2 sharing with CYD  200   (ESP32 idles ~150mA, TX peaks to 500mA)
+constexpr uint16_t LED_BUDGET_MA = 400;
+
+// Per channel at full scale, and the per-LED draw of the controller itself with
+// every channel dark. Measure yours with test c and a USB power meter.
+constexpr uint8_t LED_MA_PER_CHANNEL = 20;
+constexpr uint8_t LED_MA_QUIESCENT   = 1;
+
 Adafruit_NeoPixel strip(NUM_LEDS, PIN_LED_DATA, NEO_GRB + NEO_KHZ800);
+
+// ---------------------------------------------------------------- leds
+// What the frame sitting in the strip buffer will draw, in mA. getPixels() is
+// the post-brightness byte array actually clocked out, so this sees what the
+// LEDs will see, whatever setBrightness() is doing.
+uint16_t ledEstimateMa() {
+  uint8_t *px = strip.getPixels();
+  uint16_t n  = strip.numPixels();
+  uint32_t sum = 0;
+  for (uint16_t i = 0; i < n * 3; i++) sum += px[i];
+  return (sum * LED_MA_PER_CHANNEL) / 255 + n * LED_MA_QUIESCENT;
+}
+
+// show(), but scale the frame down first if it would exceed the budget. Scaling
+// the buffer in place keeps the colour ratios and costs one pass; the quiescent
+// term does not scale, so it comes out of the budget before the division.
+uint16_t ledShowCapped(uint16_t budgetMa) {
+  uint16_t est  = ledEstimateMa();
+  uint16_t idle = strip.numPixels() * LED_MA_QUIESCENT;
+  if (est > budgetMa && est > idle && budgetMa > idle) {
+    uint32_t scale = ((uint32_t)(budgetMa - idle) * 256) / (est - idle);
+    uint8_t *px = strip.getPixels();
+    for (uint16_t i = 0; i < strip.numPixels() * 3; i++)
+      px[i] = (uint8_t)((px[i] * scale) >> 8);
+    est = ledEstimateMa();
+  }
+  strip.show();
+  return est;
+}
 
 // ---------------------------------------------------------------- state
 uint16_t faderRaw[NUM_FADERS];
@@ -323,7 +367,7 @@ void testLedWalk() {
   for (uint8_t i = 0; i < NUM_LEDS; i++) {
     strip.clear();
     strip.setPixelColor(i, strip.Color(255, 255, 255));
-    strip.show();
+    ledShowCapped(LED_BUDGET_MA);
     Serial.print(F("  LED ")); Serial.println(i);
     delay(250);
   }
@@ -338,7 +382,7 @@ void testLedColors() {
   const char* names[] = { "RED", "GREEN", "BLUE", "WHITE" };
   for (uint8_t c = 0; c < 4; c++) {
     Serial.print(F("  all ")); Serial.println(names[c]);
-    strip.fill(cols[c]); strip.show();
+    strip.fill(cols[c]); ledShowCapped(LED_BUDGET_MA);
     delay(1200);
   }
   strip.clear(); strip.show();
@@ -405,7 +449,7 @@ void testInteractive() {
     strip.clear();
     for (uint8_t i = 0; i < NUM_LEDS; i++)
       if (btnState[i]) strip.setPixelColor(i, strip.Color(0, 255, 120));
-    strip.show();
+    ledShowCapped(LED_BUDGET_MA);
     delay(5);
   }
   strip.setBrightness(LED_BRIGHTNESS);
@@ -516,6 +560,49 @@ void testFaderFocus() {
     delay(40);
   }
   while (Serial.available()) Serial.read();
+}
+
+// c — LED current calibration. All 36 white, stepping up, printing what the
+// estimator thinks each frame costs next to what it allowed through. Put a USB
+// power meter inline: if the meter and the estimate diverge, edit
+// LED_MA_PER_CHANNEL until they agree, and the budget becomes trustworthy.
+void testLedCurrent() {
+  Serial.println(F("\nAll 36 white, stepping brightness up. 2s per step."));
+  Serial.print(F("  budget ")); Serial.print(LED_BUDGET_MA);
+  Serial.println(F("mA — raise it in the sketch to see the uncapped curve."));
+  Serial.println(F("  add ~50mA for the Feather itself when comparing to a meter.\n"));
+  Serial.println(F("  bright   want    allowed"));
+
+  for (uint16_t b = 15; b <= 255; b += 30) {
+    strip.setBrightness(b);
+    strip.fill(strip.Color(255, 255, 255));
+    uint16_t want = ledEstimateMa();
+    uint16_t got  = ledShowCapped(LED_BUDGET_MA);
+
+    Serial.print(F("    "));
+    if (b < 100) Serial.print(' ');
+    Serial.print(b);
+    Serial.print(F("   "));
+    if (want < 1000) Serial.print(' ');
+    if (want < 100)  Serial.print(' ');
+    Serial.print(want); Serial.print(F("mA"));
+    Serial.print(F("   "));
+    if (got < 1000) Serial.print(' ');
+    if (got < 100)  Serial.print(' ');
+    Serial.print(got); Serial.print(F("mA"));
+    if (got < want) Serial.print(F("   <-- capped"));
+    Serial.println();
+
+    delay(2000);
+    if (Serial.available()) break;
+  }
+
+  strip.setBrightness(LED_BRIGHTNESS);
+  strip.clear(); strip.show();
+  while (Serial.available()) Serial.read();
+  Serial.println(F("\n  36 white at full is ~2.2A. A 500mA USB port, less the"));
+  Serial.println(F("  Feather, leaves ~400mA — about brightness 45 all-white, and"));
+  Serial.println(F("  far more than that for the handful of pixels a pattern lights."));
 }
 
 // Blocks until a mux channel is picked. 0xFF means the user bailed out.
@@ -832,6 +919,7 @@ void printMenu() {
   Serial.println(F("  9  ADC reference sweep (what is full scale?)"));
   Serial.println(F("  a  fader travel profile (clipped or curved?)"));
   Serial.println(F("  b  wiper impedance probe (element value, short hunt)"));
+  Serial.println(F("  c  LED current budget (meter calibration)"));
   Serial.println(F("  ?  this menu"));
 }
 
@@ -889,6 +977,8 @@ void loop() {
     case 'A': testFaderSweep();  break;
     case 'b':
     case 'B': testFaderImpedance(); break;
+    case 'c':
+    case 'C': testLedCurrent();  break;
     case '?': printMenu();       break;
     default: return;
   }
