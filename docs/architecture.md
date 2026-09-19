@@ -42,7 +42,8 @@ working throughout, because they hang off the Feather's own 3V3 regulator.
 > (`OPTO_A` / `OPTO_K`) imply pad 1 = anode, while `D4`, a unidirectional TVS
 > with pad 1 on `+5V`, implies pad 1 = cathode. Both cannot be right. Check
 > `D1`/`D2` against the schematic before concluding which way the power path
-> flows.
+> flows — and see `hardware/footprint_audit.md`, since v3.2 lost a week to
+> exactly this class of error in a hand-drawn footprint.
 
 ### v3 pin map
 

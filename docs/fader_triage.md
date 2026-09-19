@@ -1,18 +1,50 @@
 # Fader triage — "exponential" readings and one very hot slide pot
 
-Bring-up on the fab revision of `synthseqr_v3` turned up two fader problems at
-once:
-
-1. the 16 slide pots read as if they had an exponential taper — roughly the
-   first 10 mm of a 45 mm sweep covers ~85% of the numbers, and the last 35 mm
-   sits near the top value;
-2. the single fitted pot got **very hot**.
-
-The components are confirmed linear, and the element measures linear on a
-multimeter. Those two facts are consistent with everything below: **these are
-two separate faults, and neither is in the schematic.** One is firmware, one is
-this board's assembly. The firmware one masks the diagnostic signature of the
-other, so fix it first.
+> ## Resolved, 2026-09-19: the `RV` footprint had pads 1 and 2 transposed.
+>
+> `PS45-11PC3BR10K` has no ready-made footprint on DigiKey, so it was drawn by
+> hand, and the drawing swapped the wiper with an end terminal. On the board
+> that meant:
+>
+> ```
+> 3V3      -> the WIPER          (should have been an end)
+> mux/100nF -> an element END    (should have been the wiper)
+> GND      -> the other end      (correct)
+> ```
+>
+> So every fitted pot connected 3V3 to its wiper and let the current run down
+> the element to GND. **The resistance of that path is the slider position** —
+> 10 kΩ at one end of travel, a dead short at the other. Everything follows
+> from that one line:
+>
+> - **The short that moved.** 8.9 Ω, then 53.3 Ω, then 0.375 Ω were not three
+>   faults and not a degrading part. They were one fault measured at three
+>   slider positions. Every component pulled chasing it — `U1`, `U2`, `U3`,
+>   `C58`, `C59`, `C60`, `C63` — was innocent.
+> - **The heat.** 3.3 V across a few millimetres of a 45 mm element: 371 mA at
+>   8.9 Ω, concentrated next to the slider. A 0.25 W part asked for over a watt.
+>   Two pots cooked because the *site* did it to them, which is what the
+>   RV1-vs-RV2 comparison said and why a replacement part changed nothing.
+> - **The "exponential" curve.** The mux channel sat on a floating element end,
+>   so it read the wiper's potential — which is the 3V3 rail. Near one end of
+>   travel there is no fault current and the rail is fine, so it reads full
+>   scale; approach the other end and the rail sags under its own short and the
+>   reading falls away fast. "The first 10 mm covers 85% of the values, the
+>   other 35 mm sits near the top" was the ADC watching its own supply collapse
+>   as a function of slider position. There was never a taper.
+> - **The dead USB.** 371 mA through the Feather's LDO at (5 − 3.3) V is 0.63 W
+>   in a SOT-23-5. Thermal shutdown, no VDD, nothing to enumerate.
+>
+> Fixed in v3.3 along with NPTH mounting holes and an increased clearance
+> override.
+>
+> **What this section got wrong.** It led with the ADC reference as the cause of
+> the curve. That bug is real and verified from the core source, and it did mask
+> the signature — F0 pinned at 4095 over most of its travel either way — but it
+> was not what produced the reported shape. A hand-drawn footprint was, and the
+> committed netlist could not have shown it: it maps pads to nets **by pin
+> number**, so a footprint whose numbering does not match the part is invisible
+> to it. See `hardware/footprint_audit.md`.
 
 ## 1. The taper: the SAMD51 ADC reference is never set up
 
